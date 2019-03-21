@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+		<title>GIS 101</title>
 
 		<link rel="stylesheet" href="css/reveal.css">
 		<link rel="stylesheet" href="css/theme/black.css">
@@ -24,8 +24,198 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+				<section>
+					<h1>GIS</h1>
+					<p>Geographic Information System - Paikkatietojärjestelmä</p>
+					<small>22.3.2019 - Hesburger - Heikki Ylitalo</small>
+				</section>
+				<section>
+					<h2>Paikkatieto</h2>
+					<blockquote>Paikkatieto on tietoa, johon liittyy maantieteellinen sijainti.</blockquote>
+					(lähde: Wikipedia)
+				</section>
+				<section>
+					<h2>Pistemäinen aineisto</h2>
+					<img src="/rakper_suojellut_rakennukset.PNG" height="400">
+					<p>Museovirasto - rakennusperintörekisteri - suojellut rakennukset</p>
+				</section>
+				<section>
+					<h2>Viivamainen aineisto</h2>
+					<img src="/liikennevirasto_digiroad_liikennemaarat.PNG" height="400">
+					<p>Liikennevirasto - Digiroad - liikennemäärät</p>
+				</section>
+				<section>
+					<h2>Aluemainen aineisto</h2>
+					<img src="/paikkis_vaestoruutuaineisto.PNG" height="400">
+					<p>Tilastokeskus - väestöruutuaineisto 1km x 1km 2017</p>
+				</section>
+				<section>
+					<h2>Paikkatietojärjestelmä</h2>
+					<blockquote>Paikkatietojärjestelmän avulla voidaan tuottaa, tallentaa, hallita, analysoida ja/tai esittää paikkatietoa.</blockquote>
+					(lähde: Wikipedia)
+				</section>
+				<section>
+					<h2>De facto -standardeja</h2>
+				</section>
+				<section>
+					<h2>Open source stack</h2>
+					<ul>
+						<li>QGIS - tuottaminen ja analysointi</li>
+						<li>PostGIS (PostgreSQL-laajennus) - tallentaminen ja analysointi</li>
+						<li>GeoServer - hallitseminen ja analysointi</li>
+						<li>Java - Geotools  - hallitseminen ja analysointi</li>
+						<li>OpenLayers tai Leaflet - esittäminen</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Closed source stack</h2>
+					<ul>
+						<li>ESRI - ArcGIS</li>
+						<li>...</li>
+						<li>ArcMap</li>
+						<li>ArcGIS JavaScript API</li>
+					</ul>
+				</section>
+				<section>
+					<section>
+						<h2>Aineistomuotoja</h2>
+						<ul>
+							<li>Rasteri</li>
+							<li>Vektori</li>
+							<li>Muut</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Aineistomuotoja - Rasteri</h2>
+						<ul>Perinteinen kuva
+							<li>GeoTIFF</li>
+							<li>GIF,JPEG,PNG,TIFF ns. world filen kanssa</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Aineistomuotoja - Vektori</h2>
+						<ul>
+							<li>Shapefile (.SHP - ESRI)</li>
+							<li>GeoJSON</li>
+							<li>GML</li>
+							<li>KML</li>
+							<li>TAB - MapInfo</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Aineistomuotoja - Muut</h2>
+						<ul>
+							<li>WKT</li>
+							<li>WKB</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<h2>Aineistonkäsittely</h2>
+					<p>Aineisto käsitellään esim. QGIS:llä ja sen voi exportoida esim. Shapefileksi.</p>
+					<p>Miten saan Shapefilen PostgreSQL/PostGIS-kantaan?</p>
+				</section>
+				<section>
+					<h2>PostGIS</h2>
+					<p>Asenna PostgreSQL</p>
+					<p>Asenna PostGIS-lisäosa</p>
+					<pre>
+<code>CREATE EXTENSION postgis;</code>
+					</pre>
+				</section>
+				<section>
+					<h2>GDAL/OGR - GIS-linkkuveitsi</h2>
+					<p>Sovellus/kirjasto, jolla eri formaatteja voidaan mm. lukea, tallentaa ja konvertoida pääasiassa komentoriviltä.</p>
+					<pre>
+<code>ogr2ogr -f PostgreSQL PG:dbname=siteservice sites.shp</code>
+					</pre>
+				</section>
+				<section>
+					<section>
+						<h2>shp2pgsql.exe</h2>
+						<p>Tulee esim. PostgreSQL:n Windows-asennuspaketin mukana</p>
+						<pre>
+<code>shp2pgsql -s 4326 sites public.sites | psql ...</code>
+						</pre>
+					</section>
+					<section>
+						<p>... 4326???</p>
+						<p>Magic number?</p>
+						<p>Tietäjät tietää?</p>
+						<p>GIS = Salatiedettä?</p>
+					</section>
+					<section>
+						<h2>SRID</h2>
+						<p>Spatial Reference System Identifier</p>
+						<p>Koodi, jolla viitataan sovittuun SRS/CRS:ään.</p>
+					</section>
+					<section>
+						<h2>Spatial Reference System</h2>
+						<p>WGS 84 (The new World Geodetic System) - SRID = 4326</p>
+						<p>ETRS89 / TM35FIN - SRID = 3067</p>
+						jne. <a href="epsg.io">epsg.io</a>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>PostgreSQL/PostGIS</h2>
+						<p>Sijainti tallennetaan esim. geom-sarakkeeseen, joka on geometry tietotyyppiä</p>
+						<p>Geometria tietotyypille voi PostGIS:n funktioilla tehdä geospatiaalisia operaatioita.</p>
+					</section>
+					<section>
+						<h2>PostGIS-funktiot - esimerkkejä</h2>
+						<pre>
+<code>SELECT ST_SRID(geom) FROM sites;</code>
+<code>SELECT ST_AsGeoJSON(geom) FROM sites;</code>
+<code>SELECT * 
+FROM sites 
+WHERE ST_Contains(
+	ST_GEOMFROMTEXT(
+		'POLYGON((P1.X P1.Y, P2.X P2.Y, ...))'
+	),
+	sites.geom
+);
+</code>
+						</pre>
+						<a href="http://www.postgis.org/documentation/manual-svn/PostGIS_Special_Functions_Index.html">PostGIS-funktiot</a>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>GeoServer</h2>
+						<p>GeoServer on palvelinsovellus, jolla esim. PostGIS:n paikkatietotauluja voidaan julkaista OGC:n standardeja rajapintoja käyttäen.</p>
+					</section>
+					<section>
+						<h2>OGC</h2>
+						<p>The Open Geospatial Consortium</p>
+						<blockquote>
+							The Open Geospatial Consortium (OGC) is an international not for profit organization 
+							committed to making quality open standards for the global geospatial community.
+						</blockquote>
+					</section>
+					<section>
+						<h2>Rajapinnat</h2>
+						<ul>
+							<li>WMS - Web Map Service - rasteri</li>
+							<li>WFS - Web Feature Service - vektori</li>
+							<li>WFS-T - Web Feature Service Transactional - vektorien muokkausrajapinta</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<h2>Client</h2>
+					<ul>
+						<li>OpenLayers</li>
+						<li>Leaflet</li>
+					</ul>
+					<p>Esim. Reactiin saa OL:n (React-Openlayers) tai Leafletin (React-Leaflet) pakettina käyttöön.</p>
+				</section>
+				<section>
+					<h2>Esimerkki</h2>
+				</section>
+				<section>
+					<h2>Kiitos!</h2>
+				</section>
 			</div>
 		</div>
 
